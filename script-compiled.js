@@ -1,33 +1,71 @@
+class Stopwatch {
+  constructor(display) {
+    this.running = false;
+    this.display = display;
+    this.reset();
+    this.print(this.times);
+  }
 
-//  1
+  reset() {
+    this.times = {
+      minutes: 0,
+      seconds: 0,
+      miliseconds: 0
+    };
+  }
 
-const hello = "Hello",
-      world = "World";
-const sayHello = console.log(`${hello} ${world}`);
+  print() {
+    this.display.innerText = this.format(this.times);
+  }
 
-// 2
+  format(times) {
+    return `${pad0(times.minutes)}:${pad0(times.seconds)}:${pad0(Math.floor(times.miliseconds))}`;
+  }
 
-let multiply = (a, b = 1) => {
-      return a * b;
-};
-console.log(multiply(5));
+  start() {
+    if (!this.running) {
+      this.running = true;
+      this.watch = setInterval(() => this.step(), 10);
+    }
+  }
 
-//3
-const average = (...args) => {
-      var sum = args.reduce((x, y) => x + y, 0);
-      return sum / args.length;
-};
-console.log(average(1));
-console.log(average(1, 3));
-console.log(average(1, 3, 6, 6));
+  step() {
+    if (!this.running) return;
+    this.calculate();
+    this.print();
+  }
 
-//4
+  calculate() {
+    this.times.miliseconds += 1;
+    if (this.times.miliseconds >= 100) {
+      this.times.seconds += 1;
+      this.times.miliseconds = 0;
+    }
+    if (this.times.seconds >= 60) {
+      this.times.minutes += 1;
+      this.times.seconds = 0;
+    }
+  }
 
-const grades = [1, 5, 5, 5, 4, 3, 3, 2, 1];
-console.log(average(...grades));
+  stop() {
+    this.running = false;
+    clearInterval(this.watch);
+  }
 
-// 5
+}
 
-const names = [1, 4, 'Iwona', false, 'Nowak'];
-const [,, third,, fifth] = names;
-console.log(third, fifth);
+function pad0(value) {
+  let result = value.toString();
+  if (result.length < 2) {
+    result = '0' + result;
+  }
+  return result;
+}
+
+const stopwatch = new Stopwatch(document.querySelector('.stopwatch'));
+
+var startButton = document.getElementById('start');
+startButton.addEventListener('click', () => stopwatch.start());
+
+var stopButton = document.getElementById('stop');
+stopButton.addEventListener('click', () => stopwatch.stop());
