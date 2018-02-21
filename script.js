@@ -1,73 +1,74 @@
-class Stopwatch {
-  constructor(display) {
-      this.running = false;
-      this.display = display;
-      this.reset();
-      this.print(this.times);
-  }
-
-  reset() {
-      this.times = {
-          minutes: 0,
-          seconds: 0,
-          miliseconds: 0
+class App extends React.Component {
+    constructor() {
+      super();
+      this.state = {
+        searchText: '',
+        users: []
       };
-  }
-
-  print() {
-    this.display.innerText = this.format(this.times);
-  }
-
-  format(times) {
-    return `${pad0(times.minutes)}:${pad0(times.seconds)}:${pad0(Math.floor(times.miliseconds))}`;
-  }
-
-  start() {
-    if (!this.running) {
-        this.running = true;
-        this.watch = setInterval(() => this.step(), 10);
+    }
+  
+    onChangeHandle(event) {
+      this.setState({searchText: event.target.value});
+    }
+  
+    onSubmit(event) {
+      event.preventDefault();
+      const {searchText} = this.state;
+      const url = `https://api.github.com/search/users?q=${searchText}`;
+      fetch(url)
+        .then(response => response.json())
+        .then(responseJson => this.setState({users: responseJson.items}));
+    }
+  
+    render() {
+      return (
+        <div>
+          <form onSubmit={event => this.onSubmit(event)}>
+            <label htmlFor="searchText">Search by user name</label>
+            <input
+              type="text"
+              id="searchText"
+              onChange={event => this.onChangeHandle(event)}
+              value={this.state.searchText}/>
+          </form>
+          <UsersList users={this.state.users}/>
+        </div>
+      );
     }
   }
 
-  step() {
-    if (!this.running) return;
-    this.calculate();
-    this.print();
-  }
-
-  calculate() {
-    this.times.miliseconds += 1;
-    if (this.times.miliseconds >= 100) {
-        this.times.seconds += 1;
-        this.times.miliseconds = 0;
+  class UsersList extends React.Component {
+    get users() {
+      return this.props.users.map(user => <User key={user.id} user={user}/>);
     }
-    if (this.times.seconds >= 60) {
-        this.times.minutes += 1;
-        this.times.seconds = 0;
+  
+    render() {
+      return (
+        <div>
+          {this.users}
+        </div>
+      );
     }
   }
 
-  stop() {
-    this.running = false;
-    clearInterval(this.watch);
+
+  class User extends React.Component {
+    render() {
+      return (
+        <div>
+          <img src={this.props.user.avatar_url} style={{maxWidth: '100px'}}/>
+          <a href={this.props.user.html_url} target="_blank">{this.props.user.login}</a>
+        </div>
+      );
+    }
   }
 
-}
-
-function pad0(value) {
-  let result = value.toString();
-  if (result.length < 2) {
-      result = '0' + result;
-  }
-  return result;
-}
 
 
-const stopwatch = new Stopwatch(
-document.querySelector('.stopwatch'));
 
-var startButton = document.getElementById('start');
-startButton.addEventListener('click', () => stopwatch.start());
 
-var stopButton = document.getElementById('stop');
-stopButton.addEventListener('click', () => stopwatch.stop());
+
+ReactDOM.render(
+  <App />,
+  document.getElementById('root')
+);
