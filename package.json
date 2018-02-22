@@ -1,14 +1,20 @@
 {
   "name": "package.json",
   "version": "1.0.0",
-  "description": "",
-  "main": "script.js",
+  "description": "123",
+  "main": "index.js",
+  "dependencies": {
+    "babel-preset-latest": "^6.24.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-react": "^6.24.1"
+  },
   "scripts": {
-    "start": "http-server"
+    "test": "babel",
+    "start": "babel script.js --watch --out-file script-compiled.js"
   },
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "http-server": "^0.11.1"
-  }
+  "license": "ISC"
 }
